@@ -334,18 +334,20 @@ void main()
 
     float d = 0.0;
     float h = 0.0;
+    float wave = sin(time) * 0.5 + 0.5;
     if (lensType == 0) {
         d = mod(1.0/ pow(distance(uv, vec2(0.5, 0.5)), 0.5), 0.5);
-        h = sin(d * PI * 2.0);
+        h = sin(d * PI * 2.0 + wave);
     } else if (lensType == 1) {
-        d = mod(uv.x - uv.y, 0.25);
-        h = pow(sin(d * PI * 4.0), 0.5);
+        float pitch = 0.1 + wave * 0.2;
+        d = mod(uv.x - uv.y, pitch) * pitch;
+        h = pow(sin(d * PI), 0.5);
     } else if (lensType == 2) {
-        vec2 distFromCenter = abs(mod(uv, 0.2) * 5.0 - vec2(0.5)); 
+        vec2 distFromCenter = abs(mod(uv + vec2(0.0, time * 0.1), 0.2) * 5.0 - vec2(0.5)); 
         d = max(distFromCenter.x, distFromCenter.y);
         h = sin(d * PI * 1.0);
     } else {
-        d = sdCircleWave(uv, 0.2, 0.5);
+        d = sdCircleWave(uv + vec2(wave, 0.0), 0.2, 0.5);
         //d = mod(, 0.2);
         h = sin(d * PI * 5.0);
     }

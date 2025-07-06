@@ -200,3 +200,8 @@ I tweaked the caustic and offset a bit and reapplied them, found that too much s
 I feel like we're getting close! 
 
 p.s. Even though the process can be tiring sometimes, you always show me new possibilities, especially how to combine and balance 2d&3d feelings of canvas - I'm having so much fun😊!
+
+## 2025.07.06 - [ayumu]
+
+It's been a while since I last updated! I'd like to start updating again. Today, I added animation to the shading I added previously.
+The extreme heat and busy days are upon us, so please take care of your health. Tokyo is just... so hot...
