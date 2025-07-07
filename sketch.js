@@ -7,6 +7,10 @@ let randonclrpos = [];
 let randomGauss = [];
 let lensType;
 
+function preload() {
+  uniformsShader = loadShader("uniform.vert", "uniform.frag");
+}
+
 function setup() {
   pixelDensity(1);
 
@@ -30,7 +34,7 @@ function setup() {
   
   createCanvas(canvasSize, canvasSize, WEBGL);
 
-  uniformsShader = loadShader("uniform.vert", "uniform.frag");
+
 
 
 
