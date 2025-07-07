@@ -32,7 +32,7 @@ function setup() {
   let canvasSize = min(windowWidth * 0.9, windowHeight * 0.9);
   canvasSize = max(400, min(canvasSize, 800)); // min 400px，max 800px
   
-  createCanvas(512, 256, WEBGL);
+  createCanvas(canvasSize, canvasSize, WEBGL);
 
   aspectRatio = 1.0;
 
@@ -93,16 +93,16 @@ function windowResized() {
   let canvasSize = min(windowWidth * 0.9, windowHeight * 0.9);
   canvasSize = max(400, min(canvasSize, 800));
   
-  // resizeCanvas(canvasSize, canvasSize);
+  resizeCanvas(canvasSize, canvasSize);
   
-  // let highRes = canvasSize * 2;
+  let highRes = canvasSize * 2;
   
-  // smallFBO = createFramebuffer({
-  //   width: highRes,
-  //   height: highRes,
-  //   format: UNSIGNED_BYTE,
-  //   density: 1,
-  // });
+  smallFBO = createFramebuffer({
+    width: highRes,
+    height: highRes,
+    format: UNSIGNED_BYTE,
+    density: 1,
+  });
 }
 
 

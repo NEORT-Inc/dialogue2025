@@ -1,7 +1,7 @@
 body {
-  /* display: flex;
+  display: flex;
   justify-content: center;
-  align-items: center; */
+  align-items: center;
   height: 100vh;
   margin: 0;
   background: rgb(245, 245, 245);
@@ -9,14 +9,14 @@ body {
 }
 
 #defaultCanvas0 {
-  /* width: 90vh !important;
-  height: 90vh !important; */
-  /* max-width: 90vw;
-  max-height: 90vw; */
-  /* box-shadow: 10px 10px 12px -2px rgba(0, 0, 0, 0.14),
+  width: 90vh !important;
+  height: 90vh !important;
+  max-width: 90vw;
+  max-height: 90vw;
+  box-shadow: 10px 10px 12px -2px rgba(0, 0, 0, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   border: 12px solid #ccc;
-  border-radius: 8px; */
+  border-radius: 8px;
 }
 
 #combo-display {
