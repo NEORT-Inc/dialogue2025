@@ -58,6 +58,10 @@ function draw() {
   imageMode(CENTER);
 
   image(smallFBO, 0, 0, width, height);
+
+  if (frameCount > 10000) {
+    window.location.reload();
+  }
 }
 
 function renderToFBO(fbo) {
