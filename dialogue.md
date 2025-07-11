@@ -205,3 +205,17 @@ p.s. Even though the process can be tiring sometimes, you always show me new pos
 
 It's been a while since I last updated! I'd like to start updating again. Today, I added animation to the shading I added previously.
 The extreme heat and busy days are upon us, so please take care of your health. Tokyo is just... so hot...
+
+## 2025.07.12 - [cyc - jet lag version]
+
+Thanks for the caring! Please stay healthy too!
+Last night opening was amazing - you worked so hard! Ty!
+
+I'm tired today, just want to tweak the numbers in the existing formulas...
+0.1, 0.01, 0.001... to see if I can get some interesting output
+Turns out I think I discovered some holographic gradient style - what do you think?
+
+I think we can do " me -> you " 2 people both updates counts to one round, then push it to the exhibition LED display 🔄
+
+Feel free to leave me a message if you want to discuss anything!
+
