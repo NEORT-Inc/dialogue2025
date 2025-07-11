@@ -25,6 +25,7 @@ body {
   left: 50%;
   color: #aaa;
   transform: translateX(-50%);
+  display: none;
 }
 
 @media (max-width: 768px) {
