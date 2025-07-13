@@ -219,3 +219,9 @@ I think we can do " me -> you " 2 people both updates counts to one round, then 
 
 Feel free to leave me a message if you want to discuss anything!
 
+## 2025.07.14 - [ayumu]
+
+It's been busy! I'm relieved that we've managed to open it.
+It's a good idea to explicitly indicate the conversation rally.
+I hope I can enjoy this process for a little while longer during the exhibition.
+Today I adjusted the shadow contrast to increase the variety of colors.

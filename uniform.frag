@@ -311,14 +311,14 @@ vec3 calcNormal(vec3 pos) {
 }
 
 float phongShading(vec3 p, vec3 n) {
-    vec3 lightPos = vec3(1, 1, 3);
+    vec3 lightPos = vec3(sin(time*3.0), cos(time*3.0), cos(time * 1.0) + 3.0);
     vec3 lightDir = normalize(p - lightPos);
     vec3 viewDir = vec3(0, 0, -1);
 
     float diff = max(0.0, dot(n, lightDir));
     float spec = max(0.0, dot(viewDir, reflect(n, lightDir))) * 1.5;
     float atten = 2.0 / (pow(distance(lightPos, p), 2.0) + 0.01);
-    return (diff + spec) * atten;
+    return (diff + spec * 1.0) * atten;
 } 
 
         // pos.y += abs(sin(float(i)*1.)) *vignette(uv);
@@ -337,19 +337,19 @@ void main()
     float wave = sin(time) * 0.5 + 0.5;
     if (lensType == 0) {
         d = mod(1.0/ pow(distance(uv, vec2(0.5, 0.5)), 0.5), 0.5);
-        h = sin(d * PI * 2.0 + wave);
+        h = smoothstep(0.0, 1.0, sin(d * PI * 2.0 + wave));
     } else if (lensType == 1) {
         float pitch = 0.1 + wave * 0.2;
         d = mod(uv.x - uv.y, pitch) * pitch;
-        h = pow(sin(d * PI), 0.5);
+        h = pow(smoothstep(0.0, 1.0, sin(d * PI)), 0.5);
     } else if (lensType == 2) {
         vec2 distFromCenter = abs(mod(uv + vec2(0.0, time * 0.1), 0.2) * 5.0 - vec2(0.5)); 
         d = max(distFromCenter.x, distFromCenter.y);
-        h = sin(d * PI * 1.0);
+        h = smoothstep(0.0, 1.0, sin(d * PI * 1.0));
     } else {
         d = sdCircleWave(uv + vec2(wave, 0.0), 0.2, 0.5);
         //d = mod(, 0.2);
-        h = sin(d * PI * 5.0);
+        h = smoothstep(0.0, 1.0, sin(d * PI * 5.0));
     }
 
     // see as a heightmap, apply phongshading
@@ -503,7 +503,7 @@ void main()
         vec3 col1 = ContrastSaturationBrightness(combo2, 1.0, sat2, 1.0);
         wr.rgb = mix(col0, col1, sin(time * 0.6) * 0.3 + 0.5);
         wr.rgb *= vignette(vTexCoord);
-        wr.rgb *= shadow;
+        wr.rgb = mix((1.0 - wr.rgb * 0.5) * 0.6, wr.rgb, shadow);
         outputColor = wr;
         //outputColor = vec4(vec3(d), 1.0);
     }
