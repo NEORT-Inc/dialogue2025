@@ -225,3 +225,20 @@ It's been busy! I'm relieved that we've managed to open it.
 It's a good idea to explicitly indicate the conversation rally.
 I hope I can enjoy this process for a little while longer during the exhibition.
 Today I adjusted the shadow contrast to increase the variety of colors.
+
+## 2026.02.04 - [cyc]
+
+When I got Toshi's message, I was really happy — it's really great that we have the chance to continue this project and keep the dialog going.
+
+This was my favorite project last year, and the one I had the most fun with.
+I'm genuinely excited to see what new things we can create together this time.
+
+For this round of revisions, I simply brought the colors back to a more pure, direct expression.
+Then going by my mood, I removed some of the formulas that felt overly complicated to me.
+Sometimes it gives off a sort of metallic effect. (And if you want to try other ways of color grading, I'm totally open to that!)
+
+The subtle edge on the lens also feels really nice to me.
+For the next revision, I'd like to try reworking the lens approach, or experiment with different mathematical formulas...
+
+wish you and Fuku all the best 🐕
+

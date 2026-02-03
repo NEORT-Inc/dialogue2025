@@ -82,7 +82,7 @@ float sdCircleWave(vec2 p, float tb, float ra) {
 
 vec4 color_fun(in vec2 uv, float t){
     float strength = 0.0;
-    vec3 col = vec3(0.05);
+    vec3 col = vec3(0.0);
     vec2 pos = uv*2.0-1.0;
     
     // add multi center...
@@ -106,7 +106,7 @@ vec4 color_fun(in vec2 uv, float t){
     
     float totalGaussInfluence = combinedGauss + secondaryGauss * 0.8 + bonusInfluence * 0.4;
     // slow down the time
-    float slowTime = t * 0.2 * (1.0 + combinedGauss * 0.5);
+    float slowTime = t * 0.08 * (1.0 + combinedGauss * 0.5);
 
     // Simple Caustics Calculation
     vec3 focus = vec3(4.0, 6.0, 8.0);
@@ -184,7 +184,7 @@ vec4 color_fun(in vec2 uv, float t){
         sin(dot(pos + vec2(0.0, eps), waveDir2) * 8.0 - slowTime * 2.2) * 0.12 +
         sin(dot(pos + vec2(0.0, eps), waveDir3) * 15.0 - slowTime * 4.1) * 0.08
     );
-    vec2 normal2d = normalize(vec2(hx - h, hy - h))+vec2(noise(pos));
+    vec2 normal2d = normalize(vec2(hx - h, hy - h)) + vec2(noise(pos)) * 0.3;
 
     // Focus strength (the greater the normal change the stronger the bright spot)
     float focusStrength = 1.0 / (0.02 + length(normal2d) * 20.0);
@@ -223,7 +223,7 @@ vec4 color_fun(in vec2 uv, float t){
     
     col = (color1 * weight1 + color2 * weight2 + color3 * weight3) / totalWeight;
     
-    col = pow(col, vec3(0.45)); // 0.5 -> 0.45
+    col = pow(col, vec3(0.5));
     
     // Caustics enhancement
     float totalCaustics = (caustic1 + caustic2 + caustic3) * 0.1;
@@ -467,22 +467,23 @@ void main()
         // ) * (0.3+ dist * 0.1);
 
         vec2 sampleOffset = vec2(
-            random(floor(uv * 100.0 + organicNoise)), 
-            random(floor(uv * 60.0 + organicNoise * 1.3))
-        ) * (0.001 + smoothstep(0.05, 3.6, distance(uv, vec2(0.5))) * 0.02)* (2.0+ dist * 0.1);;
+            random(fract(polarOffset.xy + time * 0.5))+random(floor(uv * 100.0*+ organicNoise * 0.3)),
+            random(fract(polarOffset.yx + time * 0.5))+random(floor(uv * 100.0*+ organicNoise * 0.3))
+        ) * (0.0005+smoothstep(0.05, 30.0, distance(uv, vec2(0.5))) * 0.01) * (30. + dist * 0.001);
         
         // final color
         // I usually mess with this function a lot to see what's the surprise...
-        float osc = sin(time * 0.02) * 0.1 + sin(0.006 * time + cos(time * 0.1) * PI) * 8.0;
+        float osc = sin(time * 0.008) * 0.1 + sin(0.002 * time + cos(time * 0.04) * PI) * 8.0;
 
         // use a unified distance calculation method
-        vec4 wr = color_fun(uv+sampleOffset, osc + (pow(dist*1.0, 0.2))+pos.x*0.01*float(i)*noise(uv+pos));
-        vec3 bright = pow(wr.rgb, vec3(0.7, 0.3, 0.4));
+        vec4 wr = color_fun(uv+sampleOffset, osc + (pow(dist*10.0, 0.2))+pos.x*0.01*float(i)*noise(uv+pos));
+
+        vec3 bright = pow(wr.rgb, vec3(0.5, 0.5, 0.5));
         vec3 original = wr.rgb;
-        wr = vec4(mix(original, bright, 0.9), 1.0);  // 90% bright 10% original
+        wr = vec4(mix(original, bright, 0.5), 0.5);
         
-        vec3 modCol = sin(wr.rgb * 20.0) * 0.5 + 0.5;
-        wr = vec4(mix(wr.rgb, modCol, 0.5), 1.0);
+        vec3 modCol = sin(wr.rgb * 0.3) * 0.5 + 0.5;
+        // wr = vec4(mix(wr.rgb, modCol, 0.5), 1.0);
 
         vec3 combo1 = vec3(
             getclrpos(wr.rgb, rand[0]),
@@ -496,14 +497,14 @@ void main()
             getclrpos(wr.rgb, rand[5])
         );
 
-        float sat1 = 0.5 + abs(sin(time * 0.2)) * 1.1;
-        float sat2 = 0.4 + abs(sin(time * 0.1)) * 0.2;
+        float sat1 = 0.5 + abs(sin(time * 0.2)) * 0.5;
+        float sat2 = 0.5 + abs(sin(time * 0.1)) * 0.5;
 
         vec3 col0 = ContrastSaturationBrightness(combo1, 1.0, sat1, 1.0);
         vec3 col1 = ContrastSaturationBrightness(combo2, 1.0, sat2, 1.0);
-        wr.rgb = mix(col0, col1, sin(time * 0.6) * 0.3 + 0.5);
+        wr.rgb = mix(col0, col1, sin(time * 0.15) * 0.5 + 0.5);
         wr.rgb *= vignette(vTexCoord);
-        wr.rgb = mix((1.0 - wr.rgb * 0.5) * 0.6, wr.rgb, shadow);
+        // wr.rgb = mix((1.0 - wr.rgb * 0.5) * 0.5, wr.rgb, shadow);
         outputColor = wr;
         //outputColor = vec4(vec3(d), 1.0);
     }
