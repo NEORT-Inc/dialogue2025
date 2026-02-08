@@ -242,3 +242,12 @@ For the next revision, I'd like to try reworking the lens approach, or experimen
 
 wish you and Fuku all the best 🐕
 
+## 2026.02.08 - [ayumu]
+
+It's quite moving to reopen this project about six months after the exhibition. It's also fun to just play around with shaders.
+
+- I added a slightly cloud-like effect overall.
+- I simplified the function that creates lens-like shapes.
+- I removed the frame, with signage and other applications in mind.
+
+It's very cold in Tokyo and it snowed today. How's Taichung?

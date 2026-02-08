@@ -68,6 +68,28 @@ float noise(vec2 pos) {
     return fract(sin(dot(pos, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
+float valueNoise(vec2 pos) {
+    vec2 i = floor(pos);
+    vec2 f = fract(pos);
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    float a = noise(i);
+    float b = noise(i + vec2(1.0, 0.0));
+    float c = noise(i + vec2(0.0, 1.0));
+    float d = noise(i + vec2(1.0, 1.0));
+    return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+}
+
+float fbm(vec2 pos) {
+    float sum = 0.0;
+    float amp = 0.5;
+    for (int i = 0; i < 5; i++) {
+        sum += amp * valueNoise(pos);
+        pos *= 2.0;
+        amp *= 0.5;
+    }
+    return sum;
+}
+
 // excerpted from https://iquilezles.org/articles/distfunctions2d/
 float sdCircleWave(vec2 p, float tb, float ra) {
     tb = 3.1415927*5.0/6.0*max(tb,0.0001);
@@ -311,7 +333,7 @@ vec3 calcNormal(vec3 pos) {
 }
 
 float phongShading(vec3 p, vec3 n) {
-    vec3 lightPos = vec3(sin(time*3.0), cos(time*3.0), cos(time * 1.0) + 3.0);
+    vec3 lightPos = vec3(sin(time*1.0), cos(time*1.0), cos(time * 0.4) + 3.0);
     vec3 lightDir = normalize(p - lightPos);
     vec3 viewDir = vec3(0, 0, -1);
 
@@ -336,25 +358,26 @@ void main()
     float h = 0.0;
     float wave = sin(time) * 0.5 + 0.5;
     if (lensType == 0) {
-        d = mod(1.0/ pow(distance(uv, vec2(0.5, 0.5)), 0.5), 0.5);
-        h = smoothstep(0.0, 1.0, sin(d * PI * 2.0 + wave));
+        d = mod(distance(uv, vec2(0.5, 0.5)), 0.2);
+        h = smoothstep(0.0, 1.0, sin(d * PI * 2.0 + wave * 0.2));
     } else if (lensType == 1) {
-        float pitch = 0.1 + wave * 0.2;
+        float pitch = 0.3;
         d = mod(uv.x - uv.y, pitch) * pitch;
         h = pow(smoothstep(0.0, 1.0, sin(d * PI)), 0.5);
     } else if (lensType == 2) {
-        vec2 distFromCenter = abs(mod(uv + vec2(0.0, time * 0.1), 0.2) * 5.0 - vec2(0.5)); 
+        vec2 distFromCenter = abs(mod(uv, 0.2) * 5.0 - vec2(0.5)); 
         d = max(distFromCenter.x, distFromCenter.y);
-        h = smoothstep(0.0, 1.0, sin(d * PI * 1.0));
+        h = pow(sin(d * PI * 0.5), 2.0);
     } else {
-        d = sdCircleWave(uv + vec2(wave, 0.0), 0.2, 0.5);
+        d = sdCircleWave(uv + vec2(wave * 0.1, 0.0), 0.2, 0.5);
         //d = mod(, 0.2);
         h = smoothstep(0.0, 1.0, sin(d * PI * 5.0));
     }
 
     // see as a heightmap, apply phongshading
     vec3 vpos = vec3(uv - vec2(0.5), h);
-    float shadow = 1.0 - phongShading(vpos, calcNormal(vpos)) * timeControl; // mix(1.0, 0.85, smoothstep(0.1 * timeControl, 0.0, d));
+    float shadow = 1.0 - phongShading(vpos, calcNormal(vpos)) * timeControl;
+    shadow = clamp(shadow, 0.0, 1.0);
     float dir = distance(uv, vec2(0.5, 0.5));
     
     // only use it when timeControl > 0
@@ -404,108 +427,118 @@ void main()
     }
 
     if (timeControl > 0.0 && lensType == 2) {
-            vec2 gridSize = vec2(0.2);
-            vec2 gridID = floor(uv / gridSize);
-            vec2 gridLocal = fract(uv / gridSize);
-            
-            vec2 cellCenter = vec2(0.5);
-            vec2 distFromCenter = abs(gridLocal - cellCenter); 
-            
-            float squareRadius = 0.5; //radius
-            float squareDist = max(distFromCenter.x, distFromCenter.y);  // dist
-            
-            if (squareDist < squareRadius) {
+        vec2 gridSize = vec2(0.2);
+        vec2 gridID = floor(uv / gridSize);
+        vec2 gridLocal = fract(uv / gridSize);
+        
+        vec2 cellCenter = vec2(0.5);
+        vec2 distFromCenter = abs(gridLocal - cellCenter); 
+        
+        float squareRadius = 0.5; //radius
+        float squareDist = max(distFromCenter.x, distFromCenter.y);  // dist
+        
+        if (squareDist < squareRadius) {
 
-                float lensPct = 1.0 - (squareDist / squareRadius);
-                
-                float lensEffect = sin(lensPct * 5.0* sin(time*0.2))
-                                  * timeControl
-                                  * (0.95 + 0.25 * cos(time * 0.015 + gridID.x + gridID.y));
-                
-                // float lensEffect = sin(lensPct * 8.0 * sin(time*0.2)) * 0.015
-                //   * timeControl
-                //   * (0.3 + 0.1 * cos(time * 0.015 + gridID.x + gridID.y));
+            float lensPct = 1.0 - (squareDist / squareRadius);
+            
+            float lensEffect = sin(lensPct * 5.0* sin(time*0.2))
+                                * timeControl
+                                * (0.95 + 0.25 * cos(time * 0.015 + gridID.x + gridID.y));
+            
+            // float lensEffect = sin(lensPct * 8.0 * sin(time*0.2)) * 0.015
+            //   * timeControl
+            //   * (0.3 + 0.1 * cos(time * 0.015 + gridID.x + gridID.y));
 
-                vec2 cellDir = normalize(gridLocal - cellCenter);
-                uv += cellDir * lensEffect * gridSize;
-            }
-
+            vec2 cellDir = normalize(gridLocal - cellCenter);
+            uv += cellDir * lensEffect * gridSize;
+        }
     }
     
     // slow down the time
     float gaussTimeMain = time * 0.02; 
     
-    for (int i = 0; i < 1; i++){
-        float ii = float(i);
-        float loopGauss = gaussian(sin(gaussTimeMain * 0.1 + ii * 0.1), 0.4);
-        
-        // compute the deformed position first
-        vec2 modifiedPos = pos;
-        modifiedPos.y += cos(modifiedPos.y*40. + ii*10.) * 10.0 * gaussTimeMain * (0.2 + loopGauss * 0.8);
-        
-        //convert to uv coordinates
-        vec2 modifiedUV = modifiedPos / vec2(width, height);
-        float dist = distance(modifiedUV, vec2(0.5, 0.5)); // based on screen center
-        
-        vec2 organicNoise = vec2(
-            sin(uv.x * 20.0 + uv.y * 15.0 + time * 0.2) * 2.0,
-            cos(uv.y * 18.0 + uv.x * 12.0 + time * 0.15) * 2.5
-        );
+    float ii = 0.0;
+    float loopGauss = gaussian(sin(gaussTimeMain * 0.1 + ii * 0.1), 0.4);
+    
+    // compute the deformed position first
+    vec2 modifiedPos = pos;
+    modifiedPos.y += cos(modifiedPos.y*40. + ii*10.) * 10.0 * gaussTimeMain * (0.2 + loopGauss * 0.8);
+    
+    //convert to uv coordinates
+    vec2 modifiedUV = modifiedPos / vec2(width, height);
+    float dist = distance(modifiedUV, vec2(0.5, 0.5)); // based on screen center
+    
+    vec2 organicNoise = vec2(
+        sin(uv.x * 20.0 + uv.y * 15.0 + time * 0.2) * 2.0,
+        cos(uv.y * 18.0 + uv.x * 12.0 + time * 0.15) * 2.5
+    );
 
-        vec2 wavePattern = vec2(
-        sin(uv.x * 15.0 + time * 0.5) * 3.0,
-        cos(uv.y * 12.0 + time * 0.3) * 4.0
-        );
-        
-        float ss = smoothstep(0.04, 0.1, time);
-        float angle = atan(uv.y - 0.5, uv.x - 0.5);
-        vec2 polarOffset = vec2(angle * 25.0, dist * 25.0);
+    vec2 wavePattern = vec2(
+    sin(uv.x * 15.0 + time * 0.5) * 3.0,
+    cos(uv.y * 12.0 + time * 0.3) * 4.0
+    );
+    
+    float ss = smoothstep(0.04, 0.1, time);
+    float angle = atan(uv.y - 0.5, uv.x - 0.5);
+    vec2 polarOffset = vec2(angle * 25.0, dist * 25.0);
 
-        // vec2 sampleOffset = vec2(
-        //     random(floor(-polarOffset.xy + time * 0.2)), 
-        //     random(floor(polarOffset.yx - time * 1.0))
-        // ) * (0.3+ dist * 0.1);
+    // vec2 sampleOffset = vec2(
+    //     random(floor(-polarOffset.xy + time * 0.2)), 
+    //     random(floor(polarOffset.yx - time * 1.0))
+    // ) * (0.3+ dist * 0.1);
 
-        vec2 sampleOffset = vec2(
-            random(fract(polarOffset.xy + time * 0.5))+random(floor(uv * 100.0*+ organicNoise * 0.3)),
-            random(fract(polarOffset.yx + time * 0.5))+random(floor(uv * 100.0*+ organicNoise * 0.3))
-        ) * (0.0005+smoothstep(0.05, 30.0, distance(uv, vec2(0.5))) * 0.01) * (30. + dist * 0.001);
-        
-        // final color
-        // I usually mess with this function a lot to see what's the surprise...
-        float osc = sin(time * 0.008) * 0.1 + sin(0.002 * time + cos(time * 0.04) * PI) * 8.0;
+    vec2 sampleOffset = vec2(
+        random(fract(polarOffset.xy + time * 0.5))+random(floor(uv * 100.0*+ organicNoise * 0.3)),
+        random(fract(polarOffset.yx + time * 0.5))+random(floor(uv * 100.0*+ organicNoise * 0.3))
+    ) * (0.0005+smoothstep(0.05, 30.0, distance(uv, vec2(0.5))) * 0.01) * (30. + dist * 0.001);
+    
+    // final color
+    // I usually mess with this function a lot to see what's the surprise...
+    float osc = sin(time * 0.008) * 0.1 + sin(0.002 * time + cos(time * 0.04) * PI) * 8.0;
 
-        // use a unified distance calculation method
-        vec4 wr = color_fun(uv+sampleOffset, osc + (pow(dist*10.0, 0.2))+pos.x*0.01*float(i)*noise(uv+pos));
+    // use a unified distance calculation method
+    vec4 wr = color_fun(uv+sampleOffset, osc + (pow(dist*10.0, 0.2))+pos.x*0.01*float(ii)*noise(uv+pos));
 
-        vec3 bright = pow(wr.rgb, vec3(0.5, 0.5, 0.5));
-        vec3 original = wr.rgb;
-        wr = vec4(mix(original, bright, 0.5), 0.5);
-        
-        vec3 modCol = sin(wr.rgb * 0.3) * 0.5 + 0.5;
-        // wr = vec4(mix(wr.rgb, modCol, 0.5), 1.0);
+    vec3 bright = pow(wr.rgb, vec3(0.5, 0.5, 0.5));
+    vec3 original = wr.rgb;
+    wr = vec4(mix(original, bright, 0.5), 0.5);
+    
+    vec3 modCol = sin(wr.rgb * 0.3) * 0.5 + 0.5;
+    // wr = vec4(mix(wr.rgb, modCol, 0.5), 1.0);
 
-        vec3 combo1 = vec3(
-            getclrpos(wr.rgb, rand[0]),
-            getclrpos(wr.rgb, rand[1]),
-            getclrpos(wr.rgb, rand[2])
-        );
-        
-        vec3 combo2 = vec3(
-            getclrpos(wr.rgb, rand[3]),
-            getclrpos(wr.rgb, rand[4]),
-            getclrpos(wr.rgb, rand[5])
-        );
+    vec3 combo1 = vec3(
+        getclrpos(wr.rgb, rand[0]),
+        getclrpos(wr.rgb, rand[1]),
+        getclrpos(wr.rgb, rand[2])
+    );
+    
+    vec3 combo2 = vec3(
+        getclrpos(wr.rgb, rand[3]),
+        getclrpos(wr.rgb, rand[4]),
+        getclrpos(wr.rgb, rand[5])
+    );
 
-        float sat1 = 0.5 + abs(sin(time * 0.2)) * 0.5;
-        float sat2 = 0.5 + abs(sin(time * 0.1)) * 0.5;
+    float sat1 = 0.5 + abs(sin(time * 0.2)) * 0.5;
+    float sat2 = 0.5 + abs(sin(time * 0.1)) * 0.5;
 
-        vec3 col0 = ContrastSaturationBrightness(combo1, 1.0, sat1, 1.0);
-        vec3 col1 = ContrastSaturationBrightness(combo2, 1.0, sat2, 1.0);
-        wr.rgb = mix(col0, col1, sin(time * 0.15) * 0.5 + 0.5);
-        wr.rgb *= vignette(vTexCoord);
-        // wr.rgb = mix((1.0 - wr.rgb * 0.5) * 0.5, wr.rgb, shadow);
-        outputColor = wr;
-        //outputColor = vec4(vec3(d), 1.0);
-    }
+    vec3 col0 = ContrastSaturationBrightness(combo1, 1.0, sat1, 1.0);
+    vec3 col1 = ContrastSaturationBrightness(combo2, 1.0, sat2, 1.0);
+    wr.rgb = mix(col0, col1, sin(time * 0.15) * 0.5 + 0.5);
+    // wr.rgb *= vignette(vTexCoord);
+    wr.rgb = mix(wr.rgb, wr.rgb * 0.7, shadow);
+
+    // cloud-like noise + soften edges
+    float cloud = fbm(uv * 1.0 + vec2(time * 0.02, -time * 0.015));
+    float cloud2 = fbm(uv * 6.0 - vec2(time * 0.01, time * 0.02));
+    float cloudMix = pow(smoothstep(0.2, 0.8, mix(cloud, cloud2, 0.3)), 1.0);
+
+    // desaturate + brighten overall
+    wr.rgb = mix(
+        ContrastSaturationBrightness(wr.rgb, 1.1, 0.9, 0.95),
+        ContrastSaturationBrightness(wr.rgb, 2.0, 0.3, 0.3),
+        cloudMix
+    );
+
+    outputColor = wr;
+    //outputColor = vec4(vec3(d), 1.0);
 }
