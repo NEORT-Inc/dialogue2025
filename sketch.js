@@ -12,10 +12,9 @@ function preload() {
 }
 
 function setup() {
-  pixelDensity(1);
+  pixelDensity(window.devicePixelRatio || 2);
 
   // random color(combo1&combo2) every time
-  //33% r 33% g 33% b
   for (let i = 0; i < 6; i++) {
     randonclrpos.push(Math.floor(Math.random() * 3));
   }
@@ -28,19 +27,17 @@ function setup() {
   resultString = randonclrpos.map(x => ['r','g','b'][x]).join('');
   console.log(randonclrpos);
 
-  // square canvas (90vh)
-  let canvasSize = min(windowWidth * 0.9, windowHeight * 0.9);
-  canvasSize = max(400, min(canvasSize, 800)); // min 400px，max 800px
-  
-  createCanvas(canvasSize, canvasSize, WEBGL);
+  let canvasWidth = windowWidth * 0.9;
+  let canvasHeight = windowHeight * 0.9;
 
-  aspectRatio = 1.0;
+  createCanvas(canvasWidth, canvasHeight, WEBGL);
 
-  let highRes = canvasSize * 2; // 2x resolution
-  
+  aspectRatio = canvasWidth / canvasHeight;
+
+  // 2x resolution for FBO
   smallFBO = createFramebuffer({
-    width: highRes,
-    height: highRes,
+    width: canvasWidth * 2,
+    height: canvasHeight * 2,
     format: UNSIGNED_BYTE,
     density: 1,
   });
@@ -79,7 +76,7 @@ function renderToFBO(fbo) {
   uniformsShader.setUniform("height", fbo.height);
   uniformsShader.setUniform("rand", randonclrpos);
   uniformsShader.setUniform("gauss", randomGauss);
-  uniformsShader.setUniform("lensType", lensType);
+  // uniformsShader.setUniform("lensType", lensType);
   
   // Draw a rect that covers the full FBO size
   push();
@@ -93,17 +90,15 @@ function renderToFBO(fbo) {
 }
 
 function windowResized() {
-  // recalculate canvas size
-  let canvasSize = min(windowWidth * 0.9, windowHeight * 0.9);
-  canvasSize = max(400, min(canvasSize, 800));
-  
-  resizeCanvas(canvasSize, canvasSize);
-  
-  let highRes = canvasSize * 2;
-  
+  let w = windowWidth;
+  let h = windowHeight;
+  resizeCanvas(w, h);
+  aspectRatio = w / h;
+
+  if (smallFBO) smallFBO.remove();
   smallFBO = createFramebuffer({
-    width: highRes,
-    height: highRes,
+    width: w * 2,
+    height: h * 2,
     format: UNSIGNED_BYTE,
     density: 1,
   });
@@ -116,23 +111,37 @@ function windowResized() {
 
 function keyPressed() {
   if (key === 's' || key === 'S') {
-    let currentWidth = width;
-    let currentHeight = height;
+
+    let exportSize_w = 1920*2;
+    let exportSize_h = 1080*2;
+
+    let exportFBO = createFramebuffer({
+      width: exportSize_w,
+      height: exportSize_h,
+      format: UNSIGNED_BYTE,
+      density: 1,
+    });
+
+    exportFBO.begin();
+    clear();
+    shader(uniformsShader);
+    uniformsShader.setUniform("time", millis() / 1000);
+    uniformsShader.setUniform("width", float(exportSize_w));
+    uniformsShader.setUniform("height", float(exportSize_h));
+    uniformsShader.setUniform("rand", randonclrpos);
+    uniformsShader.setUniform("gauss", randomGauss);
+    uniformsShader.setUniform("lensType", lensType);
     
-    resizeCanvas(4000, 4000);
-    
-    // re render
-    renderToFBO(smallFBO);
-    background(0);
-    image(smallFBO, 0, 0, 4000, 4000);
-    
-    // save
-    saveCanvas('output', 'png');
-    
-    // ori size
-    resizeCanvas(currentWidth, currentHeight);
-    
-    console.log("高解析度圖片已儲存！");
+    push();
+    scale(1, -1);
+    rect(-exportSize_w / 2, -exportSize_h / 2, exportSize_w, exportSize_h);
+    pop();
+    exportFBO.end();
+
+    let img = exportFBO.get();
+    img.save('output_highres', 'png');
+
+    exportFBO.remove();
   }
 }
 

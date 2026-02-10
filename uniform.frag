@@ -10,7 +10,7 @@ uniform float height;
 uniform sampler2D colorTex;
 uniform int rand[6];
 uniform float gauss[5];
-uniform int lensType;
+// uniform int lensType;
 
 out vec4 outputColor;
 
@@ -102,162 +102,168 @@ float sdCircleWave(vec2 p, float tb, float ra) {
     return min(d1, d2); 
 }
 
-vec4 color_fun(in vec2 uv, float t){
-    float strength = 0.0;
-    vec3 col = vec3(0.0);
-    vec2 pos = uv*2.0-1.0;
+// vec4 color_fun(in vec2 uv, float t){
+//     float strength = 0.0;
+//     vec3 col = vec3(.0);
+//     vec2 pos = uv*2.0-1.0;
     
-    // add multi center...
-    vec2 center1 = vec2(sin(t * 0.1 + sin(t) * 0.1) * 0.5, sin(t * 0.15 - sin(t * 1.0) * 0.5) * 0.5); // modulate animation a bit...
-    vec2 center2 = vec2(cos(t * 0.08) * 0.3, -sin(t * 0.12) * 0.3);
-    vec2 center3 = vec2(-sin(t * 0.13) * 0.6, cos(t * 0.9) * 0.4);
+//     // add multi center...
+//     vec2 center1 = vec2(sin(t * 0.1 + sin(t) * 0.1) * 0.5, sin(t * 0.15 - sin(t * 1.0) * 0.5) * 0.5); // modulate animation a bit...
+//     vec2 center2 = vec2(cos(t * 0.08) * 0.3, -sin(t * 0.12) * 0.3);
+//     vec2 center3 = vec2(-sin(t * 0.13) * 0.6, cos(t * 0.9) * 0.4);
     
-    // center-dist
-    float dist1 = distance(pos, center1);
-    float dist2 = distance(pos, center2)+exp(-(dist1 * dist1) / 0.1);
-    float dist3 = distance(pos, center3)+exp((dist2 * dist2) / 0.1);
+//     // center-dist
+//     float dist1 = distance(pos, center1);
+//     float dist2 = distance(pos, center2)+exp(-(dist1 * dist1) / 0.1);
+//     float dist3 = distance(pos, center3)+exp((dist2 * dist2) / 0.1);
 
-    float gauss1 = exp(-(dist1 * dist1) / 0.3);
-    float gauss2 = exp(-(dist2 * dist2) / 0.6);
-    float gauss3 = exp(-(dist3 * dist3) / 1.0);
+//     float gauss1 = exp(-(dist1 * dist1) / 0.3);
+//     float gauss2 = exp(-(dist2 * dist2) / 0.6);
+//     float gauss3 = exp(-(dist3 * dist3) / 1.0);
     
-    float combinedGauss = gauss[0] + gauss[1] * 0.7 + gauss[2] * 0.5 ;
+//     float combinedGauss = gauss[0] + gauss[1] * 0.7 + gauss[2] * 0.5 ;
     
-    float secondaryGauss = gauss3 * gauss[3] * 0.6; 
-    float bonusInfluence = gauss[4] * gauss[2] * 0.3;
+//     float secondaryGauss = gauss3 * gauss[3] * 0.6; 
+//     float bonusInfluence = gauss[4] * gauss[2] * 0.3;
     
-    float totalGaussInfluence = combinedGauss + secondaryGauss * 0.8 + bonusInfluence * 0.4;
-    // slow down the time
-    float slowTime = t * 0.08 * (1.0 + combinedGauss * 0.5);
+//     float totalGaussInfluence = combinedGauss + secondaryGauss * 0.8 + bonusInfluence * 0.4;
+//     // slow down the time
+//     float slowTime = t * 0.08 * (1.0 + combinedGauss * 0.5);
 
-    // Simple Caustics Calculation
-    vec3 focus = vec3(4.0, 6.0, 8.0);
-    vec3 timeFreq = vec3(3.0, 4.5, 6.0);
-    vec3 distFreq = vec3(dist1, dist2, dist3);
+//     // Simple Caustics Calculation
+//     vec3 focus = vec3(4.0, 6.0, 8.0);
+//     vec3 timeFreq = vec3(3.0, 4.5, 6.0);
+//     vec3 distFreq = vec3(dist1, dist2, dist3);
     
-    vec3 baseCaustics = 1.0 / (0.1 + distFreq * distFreq * focus);
-    vec3 flickers = 0.5 + 0.5 * sin(slowTime * timeFreq + distFreq * distFreq);
+//     vec3 baseCaustics = 1.0 / (0.1 + distFreq * distFreq * focus);
+//     vec3 flickers = 0.5 + 0.5 * sin(slowTime * timeFreq + distFreq * distFreq);
     
-    vec3 causticsVec = baseCaustics * flickers;
-    float caustic1 = causticsVec.x;
-    float caustic2 = causticsVec.y;
-    float caustic3 = causticsVec.z;
+//     vec3 causticsVec = baseCaustics * flickers;
+//     float caustic1 = causticsVec.x;
+//     float caustic2 = causticsVec.y;
+//     float caustic3 = causticsVec.z;
     
-    // ripple system
-    vec2 waveDir1 = vec2(cos(slowTime * 0.01), sin(slowTime * 0.01));
-    vec2 waveDir2 = vec2(cos(slowTime * 0.15 + 1.5), sin(slowTime * 0.15 + 1.5));
-    vec2 waveDir3 = vec2(cos(slowTime * 0.08 + 3.0), sin(slowTime * 0.08 + 3.0));
+//     // ripple system
+//     vec2 waveDir1 = vec2(cos(slowTime * 0.01), sin(slowTime * 0.01));
+//     vec2 waveDir2 = vec2(cos(slowTime * 0.15 + 1.5), sin(slowTime * 0.15 + 1.5));
+//     vec2 waveDir3 = vec2(cos(slowTime * 0.08 + 3.0), sin(slowTime * 0.08 + 3.0));
     
-    float wave1 = sin(dot(pos, waveDir1) * 12.0 - slowTime * 3.0) * 0.06;
-    float wave2 = sin(dot(pos, waveDir2) * 8.0 - slowTime * 2.2) * 0.12;
-    float wave3 = sin(dot(pos, waveDir3) * 15.0 - slowTime * 4.1) * 0.08;
+//     float wave1 = sin(dot(pos, waveDir1) * 12.0 - slowTime * 3.0) * 0.06;
+//     float wave2 = sin(dot(pos, waveDir2) * 8.0 - slowTime * 2.2) * 0.12;
+//     float wave3 = sin(dot(pos, waveDir3) * 15.0 - slowTime * 4.1) * 0.08;
     
-    float totalWaveHeight = wave1 - wave2 + wave3;
+//     float totalWaveHeight = wave1 - wave2 + wave3;
     
-    // lens reflection effect
-    float lensStrength = 0.5;
-    // vec2 lensOffset1 = normalize(pos + center1) * lensStrength / (1.0 + dist1 * 1.0);
-    // vec2 lensOffset2 = normalize(pos + center2) * lensStrength / (1.0 + dist2 * 2.0);
-    // vec2 lensOffset3 = normalize(pos + center3) * lensStrength / (1.0 + dist3 * 3.0);
-    vec2 lensOffset1 = normalize(pos + center1) * lensStrength / (1.0 + max(dist1, 2.0)); 
-    vec2 lensOffset2 = normalize(pos + center2) * lensStrength / (1.0 + sqrt(dist1)); 
-    vec2 lensOffset3= normalize(pos + center3) * lensStrength / (1.5 );
+//     // lens reflection effect
+//     float lensStrength = 0.5;
+//     // vec2 lensOffset1 = normalize(pos + center1) * lensStrength / (1.0 + dist1 * 1.0);
+//     // vec2 lensOffset2 = normalize(pos + center2) * lensStrength / (1.0 + dist2 * 2.0);
+//     // vec2 lensOffset3 = normalize(pos + center3) * lensStrength / (1.0 + dist3 * 3.0);
+//     vec2 lensOffset1 = normalize(pos + center1) * lensStrength / (1.0 + max(dist1, 2.0)); 
+//     vec2 lensOffset2 = normalize(pos + center2) * lensStrength / (1.0 + sqrt(dist1)); 
+//     vec2 lensOffset3= normalize(pos + center3) * lensStrength / (1.5 );
     
-    // apply lens offset
-    pos += lensOffset1 + lensOffset2 * sin(time)*0.01 + lensOffset3 * 0.5;
+//     // apply lens offset
+//     pos += lensOffset1 + lensOffset2 * sin(time)*0.01 + lensOffset3 * 0.5;
 
-    // radial ripples
-    vec3 radialWaves = sin(distFreq * vec3(9.0, 10.0, 12.0) - slowTime * vec3(1.0, 1.8, 2.5)) 
-                      * exp(-distFreq * vec3(1.5, 2.0, 1.2));
-    float radialWaveHeight = dot(radialWaves, vec3(0.5, 0.12, 0.18));
+//     // radial ripples
+//     vec3 radialWaves = sin(distFreq * vec3(9.0, 10.0, 12.0) - slowTime * vec3(1.0, 1.8, 2.5)) 
+//                       * exp(-distFreq * vec3(1.5, 2.0, 1.2));
+//     float radialWaveHeight = dot(radialWaves, vec3(0.5, 0.12, 0.18));
     
-    // combination of ripples
-    float combinedWaveHeight = totalWaveHeight + radialWaveHeight * 0.5;
+//     // combination of ripples
+//     float combinedWaveHeight = totalWaveHeight + radialWaveHeight * 0.5;
     
-    // deformation+loop
-    for(int i = 1; i < 4; i++){ 
-        float noise = random(pos);
+//     // deformation+loop
+//     for(int i = 1; i < 4; i++){ 
+//         float noise = random(pos);
         
-        // basic deformation
-        pos.x += strength * sin(2.0*slowTime + float(i)*100.0 * pos.y * noise) + slowTime * 0.00001;
-        pos.y += strength * cos(float(i)*50.0 * pos.x) + slowTime * 0.00002;
+//         // basic deformation
+//         pos.x += strength * sin(2.0*slowTime + float(i)*100.0 * pos.y * noise) + slowTime * 0.00001;
+//         pos.y += strength * cos(float(i)*50.0 * pos.x) + slowTime * 0.00002;
         
-        // wave-influenced distortion! 🌊
-        float waveInfluence = combinedWaveHeight * 5.0;
-        float chaos_x = sin(pos.y*6.0 + slowTime*1.1 + waveInfluence) * cos(pos.x*3.0 + slowTime*1.7);
-        float chaos_y = cos(pos.x*1.0 + slowTime*10. + waveInfluence) * sin(pos.y*1.3 + slowTime*0.3);
+//         // wave-influenced distortion! 🌊
+//         float waveInfluence = combinedWaveHeight * 5.0;
+//         float chaos_x = sin(pos.y*6.0 + slowTime*1.1 + waveInfluence) * cos(pos.x*3.0 + slowTime*1.7);
+//         float chaos_y = cos(pos.x*1.0 + slowTime*10. + waveInfluence) * sin(pos.y*1.3 + slowTime*0.3);
         
-        // combine distortion..
-        vec2 globalDeform = vec2(chaos_x, chaos_y) * 0.3;
-        vec2 centerDeform = vec2(chaos_x, chaos_y) * 0.25 * combinedGauss;
+//         // combine distortion..
+//         vec2 globalDeform = vec2(chaos_x, chaos_y) * 0.3;
+//         vec2 centerDeform = vec2(chaos_x, chaos_y) * 0.25 * combinedGauss;
         
-        pos += globalDeform + centerDeform;
-    }
-    float phase = slowTime;
-    float eps = 0.003;
-    float h = combinedWaveHeight;
-    float hx = (
-        sin(dot(pos + vec2(eps, 0.0), waveDir1) * 12.0 - slowTime * 3.0) * 0.06 +
-        sin(dot(pos + vec2(eps, 0.0), waveDir2) * 8.0 - slowTime * 2.2) * 0.12 +
-        sin(dot(pos + vec2(eps, 0.0), waveDir3) * 15.0 - slowTime * 4.1) * 0.08
-    );
-    float hy = (
-        sin(dot(pos + vec2(0.0, eps), waveDir1) * 12.0 - slowTime * 3.0) * 0.06 +
-        sin(dot(pos + vec2(0.0, eps), waveDir2) * 8.0 - slowTime * 2.2) * 0.12 +
-        sin(dot(pos + vec2(0.0, eps), waveDir3) * 15.0 - slowTime * 4.1) * 0.08
-    );
-    vec2 normal2d = normalize(vec2(hx - h, hy - h)) + vec2(noise(pos)) * 0.3;
+//         pos += globalDeform + centerDeform;
+//     }
+//     float phase = slowTime;
+//     float eps = 0.003;
+//     float h = combinedWaveHeight;
+//     float hx = (
+//         sin(dot(pos + vec2(eps, 0.0), waveDir1) * 12.0 - slowTime * 3.0) * 0.06 +
+//         sin(dot(pos + vec2(eps, 0.0), waveDir2) * 8.0 - slowTime * 2.2) * 0.12 +
+//         sin(dot(pos + vec2(eps, 0.0), waveDir3) * 15.0 - slowTime * 4.1) * 0.08
+//     );
+//     float hy = (
+//         sin(dot(pos + vec2(0.0, eps), waveDir1) * 12.0 - slowTime * 3.0) * 0.06 +
+//         sin(dot(pos + vec2(0.0, eps), waveDir2) * 8.0 - slowTime * 2.2) * 0.12 +
+//         sin(dot(pos + vec2(0.0, eps), waveDir3) * 15.0 - slowTime * 4.1) * 0.08
+//     );
+//     vec2 normal2d = normalize(vec2(hx - h, hy - h)) + vec2(noise(pos)) * 0.3;
 
-    // Focus strength (the greater the normal change the stronger the bright spot)
-    float focusStrength = 1.0 / (0.02 + length(normal2d) * 20.0);
-    focusStrength = pow(focusStrength, 1.5); // bright spots are more concentrated
+//     // Focus strength (the greater the normal change the stronger the bright spot)
+//     float focusStrength = 1.0 / (0.02 + length(normal2d) * 20.0);
+//     focusStrength = pow(focusStrength, 1.5); // bright spots are more concentrated
 
-    // dispersion
-    vec3 dispersion = vec3(
-        0.8 + 0.2*sin(pos.x*10.0 + t),
-        0.8 + 0.2*sin(pos.y*12.0 + t + 2.0),
-        0.8 + 0.2*sin((pos.x+pos.y)*8.0 + t + 4.0)
-    );
-    // stronger color
-    vec3 color1 = vec3(
-        0.5 + 0.6*sin(phase + pos.x*2.0 + 0.0),
-        0.5 + 0.6*sin(phase + pos.y*2.0 + 2.1),
-        0.5 + 0.6*sin(phase + pos.x*pos.y + 4.2)
-    );
+//     // dispersion
+//     vec3 dispersion = vec3(
+//         0.8 + 0.2*sin(pos.x*10.0 + t),
+//         0.8 + 0.2*sin(pos.y*12.0 + t + 2.0),
+//         0.8 + 0.2*sin((pos.x+pos.y)*8.0 + t + 4.0)
+//     );
+//     // stronger color
+//     vec3 color1 = vec3(
+//         0.5 + 0.6*sin(phase + pos.x*2.0 + 0.0),
+//         0.5 + 0.6*sin(phase + pos.y*2.0 + 2.1),
+//         0.5 + 0.6*sin(phase + pos.x*pos.y + 4.2)
+//     );
     
-    vec3 color2 = vec3(
-        0.5 + 0.6*sin(phase + pos.y*1.5 + 1.0),
-        0.5 + 0.6*sin(phase + pos.x*1.5 + 3.1),
-        0.5 + 0.6*sin(phase + pos.x*pos.y*0.5 + 5.2)
-    );
+//     vec3 color2 = vec3(
+//         0.5 + 0.6*sin(phase + pos.y*1.5 + 1.0),
+//         0.5 + 0.6*sin(phase + pos.x*1.5 + 3.1),
+//         0.5 + 0.6*sin(phase + pos.x*pos.y*0.5 + 5.2)
+//     );
     
-    vec3 color3 = vec3(
-        0.5 + 0.6*sin(phase + pos.x*3.0 + 2.0),
-        0.5 + 0.6*sin(phase + pos.y*3.0 + 4.1),
-        0.5 + 0.6*sin(phase + (pos.x+pos.y)*2.0 + 0.2)
-    );
+//     vec3 color3 = vec3(
+//         0.5 + 0.6*sin(phase + pos.x*3.0 + 2.0),
+//         0.5 + 0.6*sin(phase + pos.y*3.0 + 4.1),
+//         0.5 + 0.6*sin(phase + (pos.x+pos.y)*2.0 + 0.2)
+//     );
     
-    float weight1 = gauss1 * 0.2;
-    float weight2 = gauss2 * 0.9;
-    float weight3 = gauss3 * 0.9;
+//     float weight1 = gauss1 * 0.2;
+//     float weight2 = gauss2 * 0.9;
+//     float weight3 = gauss3 * 0.9;
     
-    float totalWeight = max(weight1 + weight2 + weight3 , 0.1);
+//     float totalWeight = max(weight1 + weight2 + weight3 , 0.1);
     
-    col = (color1 * weight1 + color2 * weight2 + color3 * weight3) / totalWeight;
+//     col = (color1 * weight1 + color2 * weight2 + color3 * weight3) / totalWeight;
     
-    col = pow(col, vec3(0.5));
+//     col = pow(col, vec3(0.5));
     
-    // Caustics enhancement
-    float totalCaustics = (caustic1 + caustic2 + caustic3) * 0.1;
-    col += focusStrength * dispersion;
+//     // Caustics enhancement
+//     float totalCaustics = (caustic1 + caustic2 + caustic3) * 0.1;
+//     col += focusStrength * dispersion;
     
-    return vec4(col, 1.0); // 10.0 is meaningless lol
-}
+//     return vec4(col, 1.0); // 10.0 is meaningless lol
+// }
 
 // vec4 color_fun(in vec2 uv, float t){
 //     float strength = 0.02;
 //     vec3 col = vec3(0.0);
-//     vec2 pos = uv*2.0-1.0;
+//     float aspect = width / height;
+//     vec2 pos;
+//     if (width > height) {
+//         pos = (uv * 2.0 - 1.0) * vec2(aspect, 1.0);
+//     } else {
+//         pos = (uv * 2.0 - 1.0) * vec2(1.0, 1.0 / aspect);
+//     }
     
 //     // gaussian center point
 //     vec2 center1 = vec2(sin(t * 0.1) * 0.5, cos(t * 0.15) * 0.5);
@@ -281,21 +287,66 @@ vec4 color_fun(in vec2 uv, float t){
     
 //     float slowTime = t * 0.1 * (1.0 + totalGaussInfluence * 0.5);
     
-//     for(int i = 1; i < 6; i++){ 
+//     for(int i = 1; i < 10; i++){ 
 //         float noise = fract(sin(dot(pos, vec2(12.9898, 78.233))) * 43758.5453);
         
-//         pos.x += strength * sin(2.0*slowTime+float(i)*100.0 * pos.y*noise) + slowTime * 0.00001;
+//         pos.x += strength * sin(2.0*slowTime+float(i)*10.0 * pos.y*noise) + slowTime * 0.00001;
 //         pos.y += strength * cos(float(i)*50.0 * pos.x);
         
 //         float chaos_x = sin(pos.y*6.0 + slowTime*1.1) * cos(pos.x*3.0 + slowTime*1.7);
 //         float chaos_y = cos(pos.x*1.0 + slowTime*10.) * sin(pos.y*1.3 + slowTime*0.3);
-//         pos += vec2(chaos_x, chaos_y) * 0.55 * totalGaussInfluence;  // 使用 totalGaussInfluence
+//         pos += vec2(chaos_x, chaos_y) * .5 * totalGaussInfluence;  // 使用 totalGaussInfluence
 //     }
     
 //     col += 0.5 + 0.5*sin(slowTime+pos.xyx+pos.yyy+pos.xxx+vec3(0.675,0.239,2.000));
 //     col = pow(col, vec3(0.5));
 //     return vec4(col,1.0);
 // }
+
+vec4 color_fun(in vec2 uv, float t) {
+    float aspect = width/height;
+    vec2 pos = (width > height) ? (uv * 2.0 - 1.0) * vec2(aspect, 1.0) : (uv * 2.0 - 1.0) * vec2(1.0, 1.0 / aspect);
+    
+    vec2 center1 = vec2(sin(t * 0.01) * 0.5, cos(t * 0.15) * 0.5)* gauss[0];
+    vec2 center2 = vec2(cos(t * 0.08) * 0.3, sin(t * 0.12) * 0.3)* gauss[2];
+    float gauss1 = gaussian2D(pos - center1, 0.5);
+    float gauss2 = gaussian2D(pos - center2, 0.7);
+    float influence = (gauss1 * gauss[0] + gauss2 * gauss[1] + gauss[2]) * 0.5;
+    
+    float slowTime = t * 0.05;
+    vec2 q = vec2(fbm(pos + vec2(0.0, 0.0) + slowTime * 0.2),
+                  fbm(pos + vec2(5.2, 1.3) + slowTime * 0.15));
+    
+    vec2 r = vec2(fbm(pos + 4.0 * q + vec2(1.7, 9.2) + slowTime * 0.1),
+                  fbm(pos + 4.0 * q + vec2(8.3, 2.8) + slowTime * 0.12));
+
+    vec2 warpedPos = pos + 0.5 * r;
+
+    float strength = 0.01 + influence * 0.1; 
+    for(int i = 1; i < 4; i++) {
+        float fi = float(i);
+        float angle = slowTime + length(warpedPos) * 0.5;
+        mat2 rot = mat2(cos(angle), -sin(angle), sin(angle), cos(cos(angle)));
+        
+        warpedPos *= rot;
+        warpedPos.x += strength * sin(fi * warpedPos.y + slowTime);
+        warpedPos.y += strength * cos(fi * warpedPos.x + slowTime);
+    }
+
+    //mix color
+    vec3 col = vec3(0.0);
+    col.r = fbm(warpedPos + slowTime);
+    col.g = fbm(warpedPos + vec2(1.0));
+    col.b = fbm(warpedPos + vec2(2.0, 4.0));
+
+    // ripples
+    col += 0.3 * sin(slowTime + length(warpedPos) * 10.0 + vec3(0.0, 2.0, 4.0));
+    
+    col = mix(col, col*(2.-2.*col), 0.5);
+    col = pow(col, vec3(0.8));
+
+    return vec4(col, 1.0);
+}
 
 vec4 color_gaussian_wave(in vec2 uv, float t){
     float strength = 0.02;
@@ -342,14 +393,28 @@ float phongShading(vec3 p, vec3 n) {
     float atten = 2.0 / (pow(distance(lightPos, p), 2.0) + 0.01);
     return (diff + spec * 1.0) * atten;
 } 
-
-        // pos.y += abs(sin(float(i)*1.)) *vignette(uv);
+float map(float value, float min1, float max1, float min2, float max2) {
+  return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
+}
 void main()
 {
     //shader position
     vec2 uv = vTexCoord;
     vec2 pos = uv * vec2(width, height);
     vec2 center = vec2(width/2.0, height/2.0);
+
+    float aspect = width / height;
+    float minDim = min(width, height);
+    float maxDim = max(width, height);
+
+    vec2 pixelCenter = vec2(width * 0.5, height * 0.5);
+    vec2 pixelPos = pos - pixelCenter;  // pos = uv * vec2(width, height)
+
+    float pixelDist = length(pixelPos);
+    float circleRadius = minDim * 0.5;
+    float normDist = pixelDist/circleRadius;
+    vec2 normCoord = pixelPos/circleRadius;
+
     // reversing distance field
     // timeControl enhance shadow & lens effect
     float timeControl = smoothstep(0.0, 1.0, (sin(time * 0.2) + 1.0) * 0.5);
@@ -357,103 +422,35 @@ void main()
     float d = 0.0;
     float h = 0.0;
     float wave = sin(time) * 0.5 + 0.5;
-    if (lensType == 0) {
-        d = mod(distance(uv, vec2(0.5, 0.5)), 0.2);
-        h = smoothstep(0.0, 1.0, sin(d * PI * 2.0 + wave * 0.2));
-    } else if (lensType == 1) {
-        float pitch = 0.3;
-        d = mod(uv.x - uv.y, pitch) * pitch;
-        h = pow(smoothstep(0.0, 1.0, sin(d * PI)), 0.5);
-    } else if (lensType == 2) {
-        vec2 distFromCenter = abs(mod(uv, 0.2) * 5.0 - vec2(0.5)); 
-        d = max(distFromCenter.x, distFromCenter.y);
-        h = pow(sin(d * PI * 0.5), 2.0);
-    } else {
-        d = sdCircleWave(uv + vec2(wave * 0.1, 0.0), 0.2, 0.5);
-        //d = mod(, 0.2);
-        h = smoothstep(0.0, 1.0, sin(d * PI * 5.0));
-    }
+
+    d = mod(normDist, 0.2);
+    h = smoothstep(0.0, 1.0, sin(d * PI * 2.0 + wave * 0.2));
 
     // see as a heightmap, apply phongshading
-    vec3 vpos = vec3(uv - vec2(0.5), h);
+    vec3 vpos = vec3(normCoord, h);
     float shadow = 1.0 - phongShading(vpos, calcNormal(vpos)) * timeControl;
     shadow = clamp(shadow, 0.0, 1.0);
-    float dir = distance(uv, vec2(0.5, 0.5));
-    
-    // only use it when timeControl > 0
-    if (timeControl > 0.0 && lensType == 0) {
+
         for (int ring = 1; ring <= 4; ring++) {
-            float ringRadius = float(ring) * 0.12;
-            float ringWidth = 0.8;
-            
-            if (abs(dir - ringRadius) < ringWidth * 0.5) {
-                float localDist = abs(dir - ringRadius);
+            float ringRadius = float(ring) * 0.25;
+            float ringWidth = 0.4;
+
+            if (abs(normDist - ringRadius) < ringWidth * 0.5) {
+                float localDist = abs(normDist - ringRadius);
                 float lensPct = 1.0 - (localDist / (ringWidth * 0.5));
-                
+
                 float dStrength = d;
-                float lensEffect = sin(lensPct * 20.0 + dStrength * 30.0* sin(time*0.2)) * 0.06 
+                float lensEffectPixels = sin(lensPct * 20.0 + dStrength * 30.0 * sin(time*0.2)) * 10.0
                                   * timeControl
                                   * (0.8 + 0.4 * cos(time * 0.01 + float(ring)));
-                
-                vec2 dir = normalize(uv - vec2(0.5, 0.5));
-                uv += dir * lensEffect;
-                
+
+                vec2 dirVec = normalize(pixelPos);
+                uv += dirVec * lensEffectPixels / vec2(width, height);
+
                 break;
             }
         }
-    }
 
-    if (timeControl > 0.0 && lensType == 1) {
-        float diagonal = uv.x - uv.y;
-        for (int line = -9; line <= 3; line++) {
-            float linePos = float(line) * 0.15;
-            float lineDistance = abs(diagonal - linePos);
-            float lineWidth = 0.1;
-            
-            if (lineDistance < lineWidth * 0.5) {
-                float localDist = lineDistance;
-                float lensPct = 1.0 - (localDist / (lineWidth * 0.5));
-                
-                vec2 diagonalDir = normalize(vec2(1.0, -1.0));
-                //float lensEffect = sin(lensPct * 5.0 + d * 1.0*sin(time)) * 0.04
-                float lensEffect = sin(lensPct * 5.0 + 5.*d*sin(time*0.5)) * 0.04 
-                                  * timeControl
-                                  * (0.9 + 0.3 * cos(time * 0.1 + float(line)));
-                
-                uv += diagonalDir * lensEffect;
-                break;
-            }
-        }
-    }
-
-    if (timeControl > 0.0 && lensType == 2) {
-        vec2 gridSize = vec2(0.2);
-        vec2 gridID = floor(uv / gridSize);
-        vec2 gridLocal = fract(uv / gridSize);
-        
-        vec2 cellCenter = vec2(0.5);
-        vec2 distFromCenter = abs(gridLocal - cellCenter); 
-        
-        float squareRadius = 0.5; //radius
-        float squareDist = max(distFromCenter.x, distFromCenter.y);  // dist
-        
-        if (squareDist < squareRadius) {
-
-            float lensPct = 1.0 - (squareDist / squareRadius);
-            
-            float lensEffect = sin(lensPct * 5.0* sin(time*0.2))
-                                * timeControl
-                                * (0.95 + 0.25 * cos(time * 0.015 + gridID.x + gridID.y));
-            
-            // float lensEffect = sin(lensPct * 8.0 * sin(time*0.2)) * 0.015
-            //   * timeControl
-            //   * (0.3 + 0.1 * cos(time * 0.015 + gridID.x + gridID.y));
-
-            vec2 cellDir = normalize(gridLocal - cellCenter);
-            uv += cellDir * lensEffect * gridSize;
-        }
-    }
-    
     // slow down the time
     float gaussTimeMain = time * 0.02; 
     
@@ -467,42 +464,47 @@ void main()
     //convert to uv coordinates
     vec2 modifiedUV = modifiedPos / vec2(width, height);
     float dist = distance(modifiedUV, vec2(0.5, 0.5)); // based on screen center
-    
-    vec2 organicNoise = vec2(
-        sin(uv.x * 20.0 + uv.y * 15.0 + time * 0.2) * 2.0,
-        cos(uv.y * 18.0 + uv.x * 12.0 + time * 0.15) * 2.5
-    );
 
-    vec2 wavePattern = vec2(
-    sin(uv.x * 15.0 + time * 0.5) * 3.0,
-    cos(uv.y * 12.0 + time * 0.3) * 4.0
-    );
-    
     float ss = smoothstep(0.04, 0.1, time);
     float angle = atan(uv.y - 0.5, uv.x - 0.5);
     vec2 polarOffset = vec2(angle * 25.0, dist * 25.0);
+    vec2 organicFlow = vec2(fbm(uv * 1.0 + time * 0.1), fbm(uv * 3.5 - time * 0.1));
+
+    float ccc = mix(1., 1., sin(time) * 0.05 + 0.5);
+    float angleTemp = map(ii, 0., 12., 0., PI * PI) + organicFlow.x * 2.0; 
+    float radius = 600. + 300. * sin(ii * 123.123) * ii;
+
+    vec2 warpedUV = uv + organicFlow * 0.1;
+    vec2 sampleOffset = vec2(
+        random(floor(warpedUV * (100.0 + organicFlow.x * 20.0))), 
+        random(floor(warpedUV * (130.0 + organicFlow.y * 20.0)))
+    ) * (0.001 + smoothstep(0.05, 0.6, distance(uv, vec2(0.5))) * 0.02);
+
+    sampleOffset.x += sin(uv.x * ii + organicFlow.y * 10.0) * 0.1 + fract(dist * 0.03 + organicFlow.x);
+    sampleOffset.y += sin(uv.y * ii * ii + organicFlow.x * 10.0) * 0.1 + fract(dist * 0.03 + organicFlow.y);
+
+    float osc = sin(gaussTimeMain * 0.02) * 0.05 + (0.06 * gaussTimeMain + cos(time * 0.04) * PI) * 8.0;
+    vec4 wr = color_fun(uv - sampleOffset, osc * sin(uv.x) / uv.x - abs(pow(dist * 30.0, 0.45)));
+
+
 
     // vec2 sampleOffset = vec2(
-    //     random(floor(-polarOffset.xy + time * 0.2)), 
-    //     random(floor(polarOffset.yx - time * 1.0))
-    // ) * (0.3+ dist * 0.1);
+    //     random(floor(uv * 100.0)), 
+    //     random(floor(uv * 100.0 * 1.3))
+    // ) * (0.001 + smoothstep(0.05, 0.6, distance(uv, vec2(0.5))) * 0.02); 
 
-    vec2 sampleOffset = vec2(
-        random(fract(polarOffset.xy + time * 0.5))+random(floor(uv * 100.0*+ organicNoise * 0.3)),
-        random(fract(polarOffset.yx + time * 0.5))+random(floor(uv * 100.0*+ organicNoise * 0.3))
-    ) * (0.0005+smoothstep(0.05, 30.0, distance(uv, vec2(0.5))) * 0.01) * (30. + dist * 0.001);
-    
-    // final color
-    // I usually mess with this function a lot to see what's the surprise...
-    float osc = sin(time * 0.008) * 0.1 + sin(0.002 * time + cos(time * 0.04) * PI) * 8.0;
+    // sampleOffset.x += sin(uv.x * ii) * 0.1 + fract(dist * 0.03);
+    // sampleOffset.y += sin(uv.y * ii * ii) * 0.1 + fract(dist * 0.03);
+    // // final color
+    // // I usually mess with this function a lot to see what's the surprise...
+    // float osc = sin(time * 0.008) * 0.1 + sin(0.002 * time + cos(time * 0.04) * PI) * 8.0;
 
-    // use a unified distance calculation method
-    vec4 wr = color_fun(uv+sampleOffset, osc + (pow(dist*10.0, 0.2))+pos.x*0.01*float(ii)*noise(uv+pos));
+    // // use a unified distance calculation method
+    // vec4 wr = color_fun(uv+sampleOffset, osc + (pow(dist*10.0, 0.2))+pos.x*0.01*float(ii)*noise(uv+pos));
 
-    vec3 bright = pow(wr.rgb, vec3(0.5, 0.5, 0.5));
+    vec3 bright = pow(wr.rgb, vec3(0.7, 0.3, 0.4));
     vec3 original = wr.rgb;
-    wr = vec4(mix(original, bright, 0.5), 0.5);
-    
+    wr = vec4(mix(original, bright, 0.5), 1.0);
     vec3 modCol = sin(wr.rgb * 0.3) * 0.5 + 0.5;
     // wr = vec4(mix(wr.rgb, modCol, 0.5), 1.0);
 
@@ -516,21 +518,22 @@ void main()
         getclrpos(wr.rgb, rand[3]),
         getclrpos(wr.rgb, rand[4]),
         getclrpos(wr.rgb, rand[5])
-    );
 
-    float sat1 = 0.5 + abs(sin(time * 0.2)) * 0.5;
-    float sat2 = 0.5 + abs(sin(time * 0.1)) * 0.5;
+    );
+    
+    float sat1 = 0.2 + abs(sin(time * 0.2)) * 1.1;
+    float sat2 = 0.2 + abs(sin(time * 0.1)) * 2.2;
 
     vec3 col0 = ContrastSaturationBrightness(combo1, 1.0, sat1, 1.0);
     vec3 col1 = ContrastSaturationBrightness(combo2, 1.0, sat2, 1.0);
     wr.rgb = mix(col0, col1, sin(time * 0.15) * 0.5 + 0.5);
     // wr.rgb *= vignette(vTexCoord);
-    wr.rgb = mix(wr.rgb, wr.rgb * 0.7, shadow);
+    wr.rgb = mix(wr.rgb, wr.rgb * 0.8, shadow);
 
     // cloud-like noise + soften edges
     float cloud = fbm(uv * 1.0 + vec2(time * 0.02, -time * 0.015));
     float cloud2 = fbm(uv * 6.0 - vec2(time * 0.01, time * 0.02));
-    float cloudMix = pow(smoothstep(0.2, 0.8, mix(cloud, cloud2, 0.3)), 1.0);
+    float cloudMix = pow(smoothstep(0.2, 0.8, mix(cloud, cloud2, 0.5)), 1.0);
 
     // desaturate + brighten overall
     wr.rgb = mix(
@@ -538,7 +541,9 @@ void main()
         ContrastSaturationBrightness(wr.rgb, 2.0, 0.3, 0.3),
         cloudMix
     );
-
+    modCol = sin(wr.rgb * PI * 20.0) * 0.5 + 0.5;
+    wr = vec4(mix(wr.rgb, modCol, 0.3), 1.0);
     outputColor = wr;
     //outputColor = vec4(vec3(d), 1.0);
 }
+// }
