@@ -273,3 +273,12 @@ Last, I’ve tweaked the saturation and brightness.
 The current visuals look very intense, but in terms of complexity, I think the vertical layout (portrait) shows it off best.
 
 Tbh, I feel like it’s gotten a bit too complex.....but I’ve gone too far to turn back now! It's just like life...(笑)
+
+# 2026.02.12 [ayumu]
+
+I really like how I was able to express dynamic, unsettled colors like polarized light.
+
+- I brightened the screen overall to increase the amount of white, taking into consideration the medium and space in which it would be placed.
+- I emphasized the lighting and offset to accentuate the effect created by the relief.
+
+You're right about the complexity of the image due to noise and other factors, but I also find it pleasant when the colors have less contrast. However, this doesn't happen all the time, it's just for a moment. That's also life.

@@ -388,8 +388,8 @@ float phongShading(vec3 p, vec3 n) {
     vec3 lightDir = normalize(p - lightPos);
     vec3 viewDir = vec3(0, 0, -1);
 
-    float diff = max(0.0, dot(n, lightDir));
-    float spec = max(0.0, dot(viewDir, reflect(n, lightDir))) * 1.5;
+    float diff = max(0.0, dot(n, lightDir)) * 1.2;
+    float spec = pow(max(0.0, dot(viewDir, reflect(n, lightDir))), 8.0) * 2.0;
     float atten = 2.0 / (pow(distance(lightPos, p), 2.0) + 0.01);
     return (diff + spec * 1.0) * atten;
 } 
@@ -407,7 +407,10 @@ void main()
     float minDim = min(width, height);
     float maxDim = max(width, height);
 
-    vec2 pixelCenter = vec2(width * 0.5, height * 0.5);
+    vec2 centerRatio = vec2(0.5);
+    centerRatio += vec2(0.2, -0.1);
+
+    vec2 pixelCenter = vec2(width, height) * centerRatio;
     vec2 pixelPos = pos - pixelCenter;  // pos = uv * vec2(width, height)
 
     float pixelDist = length(pixelPos);
@@ -417,39 +420,44 @@ void main()
 
     // reversing distance field
     // timeControl enhance shadow & lens effect
-    float timeControl = smoothstep(0.0, 1.0, (sin(time * 0.2) + 1.0) * 0.5);
+    float timeControl = smoothstep(-0.2, 1.0, (sin(time * 0.2) + 1.0) * 0.5);
 
     float d = 0.0;
     float h = 0.0;
     float wave = sin(time) * 0.5 + 0.5;
 
     d = mod(normDist, 0.2);
-    h = smoothstep(0.0, 1.0, sin(d * PI * 2.0 + wave * 0.2));
+    h = smoothstep(-0.5, 1.0, sin(d * PI * 2.0 + wave * 0.5));
 
     // see as a heightmap, apply phongshading
     vec3 vpos = vec3(normCoord, h);
     float shadow = 1.0 - phongShading(vpos, calcNormal(vpos)) * timeControl;
     shadow = clamp(shadow, 0.0, 1.0);
 
-        for (int ring = 1; ring <= 4; ring++) {
-            float ringRadius = float(ring) * 0.25;
-            float ringWidth = 0.4;
+    // refraction-like deformation based on height (screen-space gradient)
+    vec2 heightGrad = vec2(dFdx(h), dFdy(h));
+    float heightMask = smoothstep(1.05, 0.2, normDist);
+    float refractStrength = 0.05 * timeControl;
 
-            if (abs(normDist - ringRadius) < ringWidth * 0.5) {
-                float localDist = abs(normDist - ringRadius);
-                float lensPct = 1.0 - (localDist / (ringWidth * 0.5));
+    for (int ring = 1; ring <= 4; ring++) {
+        float ringRadius = float(ring) * 0.25;
+        float ringWidth = 0.4;
 
-                float dStrength = d;
-                float lensEffectPixels = sin(lensPct * 20.0 + dStrength * 30.0 * sin(time*0.2)) * 10.0
-                                  * timeControl
-                                  * (0.8 + 0.4 * cos(time * 0.01 + float(ring)));
+        if (abs(normDist - ringRadius) < ringWidth * 0.5) {
+            float localDist = abs(normDist - ringRadius);
+            float lensPct = 1.0 - (localDist / (ringWidth * 0.5));
 
-                vec2 dirVec = normalize(pixelPos);
-                uv += dirVec * lensEffectPixels / vec2(width, height);
+            float dStrength = d;
+            float lensEffectPixels = sin(lensPct * 20.0 + dStrength * 30.0 * sin(time*0.2)) * 10.0
+                                * timeControl
+                                * (0.8 + 0.4 * cos(time * 0.01 + float(ring)));
 
-                break;
-            }
+            vec2 dirVec = normalize(pixelPos);
+            uv += dirVec * lensEffectPixels / vec2(width, height);
+
+            break;
         }
+    }
 
     // slow down the time
     float gaussTimeMain = time * 0.02; 
@@ -485,8 +493,6 @@ void main()
 
     float osc = sin(gaussTimeMain * 0.02) * 0.05 + (0.06 * gaussTimeMain + cos(time * 0.04) * PI) * 8.0;
     vec4 wr = color_fun(uv - sampleOffset, osc * sin(uv.x) / uv.x - abs(pow(dist * 30.0, 0.45)));
-
-
 
     // vec2 sampleOffset = vec2(
     //     random(floor(uv * 100.0)), 
@@ -537,12 +543,12 @@ void main()
 
     // desaturate + brighten overall
     wr.rgb = mix(
-        ContrastSaturationBrightness(wr.rgb, 1.1, 0.9, 0.95),
-        ContrastSaturationBrightness(wr.rgb, 2.0, 0.3, 0.3),
+        ContrastSaturationBrightness(wr.rgb, 1.1, 1.0, 1.0),
+        ContrastSaturationBrightness(wr.rgb, 3.0, 0.5, 0.5),
         cloudMix
     );
     modCol = sin(wr.rgb * PI * 20.0) * 0.5 + 0.5;
-    wr = vec4(mix(wr.rgb, modCol, 0.3), 1.0);
+    wr = vec4(mix(wr.rgb, modCol, 0.2), 1.0);
     outputColor = wr;
     //outputColor = vec4(vec3(d), 1.0);
 }
