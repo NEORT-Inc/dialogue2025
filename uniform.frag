@@ -543,8 +543,8 @@ void main()
 
     // desaturate + brighten overall
     wr.rgb = mix(
-        ContrastSaturationBrightness(wr.rgb, 1.1, 1.0, 1.0),
-        ContrastSaturationBrightness(wr.rgb, 3.0, 0.5, 0.5),
+        ContrastSaturationBrightness(wr.rgb, 1.2, 1.0, 0.5),
+        ContrastSaturationBrightness(wr.rgb, 3.0, 0.5, 0.6),
         cloudMix
     );
     modCol = sin(wr.rgb * PI * 20.0) * 0.5 + 0.5;
