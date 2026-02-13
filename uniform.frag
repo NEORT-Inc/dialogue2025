@@ -335,9 +335,9 @@ vec4 color_fun(in vec2 uv, float t) {
 
     //mix color
     vec3 col = vec3(0.0);
-    col.r = fbm(warpedPos + slowTime);
-    col.g = fbm(warpedPos + vec2(1.0));
-    col.b = fbm(warpedPos + vec2(2.0, 4.0));
+    col.r = fbm(warpedPos + sin(slowTime));
+    col.g = fbm(warpedPos + sin(slowTime)*1.2);
+    col.b = fbm(warpedPos + sin(slowTime)*1.1);
 
     // ripples
     col += 0.3 * sin(slowTime + length(warpedPos) * 10.0 + vec3(0.0, 2.0, 4.0));
@@ -432,7 +432,7 @@ void main()
     // see as a heightmap, apply phongshading
     vec3 vpos = vec3(normCoord, h);
     float shadow = 1.0 - phongShading(vpos, calcNormal(vpos)) * timeControl;
-    shadow = clamp(shadow, 0.0, 1.0);
+    shadow = clamp(shadow, 0.0, 1.);
 
     // refraction-like deformation based on height (screen-space gradient)
     vec2 heightGrad = vec2(dFdx(h), dFdy(h));
@@ -448,7 +448,7 @@ void main()
             float lensPct = 1.0 - (localDist / (ringWidth * 0.5));
 
             float dStrength = d;
-            float lensEffectPixels = sin(lensPct * 20.0 + dStrength * 30.0 * sin(time*0.2)) * 10.0
+            float lensEffectPixels = sin(lensPct * 20.0 + dStrength * 60.0 * sin(time*0.2)) * 15.0
                                 * timeControl
                                 * (0.8 + 0.4 * cos(time * 0.01 + float(ring)));
 
@@ -527,12 +527,12 @@ void main()
 
     );
     
-    float sat1 = 0.2 + abs(sin(time * 0.2)) * 1.1;
-    float sat2 = 0.2 + abs(sin(time * 0.1)) * 2.2;
+    float sat1 = 0.2 + abs(sin(time * 0.05)) * 2.1;
+    float sat2 = 0.2 + abs(sin(time * 0.03)) * 2.2;
 
     vec3 col0 = ContrastSaturationBrightness(combo1, 1.0, sat1, 1.0);
     vec3 col1 = ContrastSaturationBrightness(combo2, 1.0, sat2, 1.0);
-    wr.rgb = mix(col0, col1, sin(time * 0.15) * 0.5 + 0.5);
+    wr.rgb = mix(col0, col1, sin(time * 0.05) * 0.5 + 0.5);
     // wr.rgb *= vignette(vTexCoord);
     wr.rgb = mix(wr.rgb, wr.rgb * 0.8, shadow);
 
@@ -547,8 +547,13 @@ void main()
         ContrastSaturationBrightness(wr.rgb, 3.0, 0.5, 0.6),
         cloudMix
     );
-    modCol = sin(wr.rgb * PI * 20.0) * 0.5 + 0.5;
+    modCol = sin(wr.rgb * PI * 15.0) * 0.5 + 0.5;
     wr = vec4(mix(wr.rgb, modCol, 0.2), 1.0);
+
+    float lum = dot(wr.rgb, vec3(0.2126, 0.7152, 0.0722));
+    float newlum = dot(wr.rgb, vec3(0.2126, 0.7152, 0.0722));
+    wr.rgb *= lum / max(newlum, 0.001);
+
     outputColor = wr;
     //outputColor = vec4(vec3(d), 1.0);
 }
